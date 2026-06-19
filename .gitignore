@@ -1,0 +1,19 @@
+# Obsidian
+.obsidian/
+.trash/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Temp files
+*.tmp
+*.bak
+*~
+
+# IDE
+.vscode/
+.idea/

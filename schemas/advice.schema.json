@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xixi-liaoning/schemas/advice.schema.json",
+  "title": "Advisor Output — advisor Agent 输出",
+  "description": "advisor Agent 基于 fetched-data.json 完成六维度分析和志愿排序后的结构化输出，供 report-writer Agent 消费。",
+  "type": "object",
+  "required": ["recommendations", "ranking_table", "risk_assessment", "quality_self_check"],
+  "properties": {
+    "candidate_summary": {
+      "type": "object",
+      "description": "考生画像摘要",
+      "properties": {
+        "name": {"type": "string"},
+        "score": {"type": "number"},
+        "rank": {"type": "number"},
+        "positioning": {"type": "string", "description": "一句话定位，如'550分物理类，省排3.2万，超本科线100分/超特控线40分'"},
+        "unreachable_schools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "school_major": {"type": "string"},
+              "year_score_rank": {"type": "string"},
+              "gap": {"type": "string"},
+              "source": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "按四层优先级排序的完整推荐列表",
+      "items": {
+        "type": "object",
+        "required": ["school_name", "major_name", "tier", "admission_assessment", "six_dimensions"],
+        "properties": {
+          "school_name": {"type": "string"},
+          "major_name": {"type": "string"},
+          "tier": {"type": "string", "enum": ["省内第一层·大连", "省内第二层·沈阳", "省内第三层·其他", "全国第四层"]},
+          "city": {"type": "string"},
+          "admission_assessment": {
+            "type": "object",
+            "required": ["strategy", "confidence_note"],
+            "properties": {
+              "strategy": {"type": "string", "enum": ["稳", "冲", "保", "极小计划-不做判断"]},
+              "confidence_note": {"type": "string", "description": "如'你的位次在此专业近三年最低位次之上，该专业2025年在辽宁招25人（计划充裕），录取稳定'"},
+              "score_comparison": {
+                "type": "object",
+                "properties": {
+                  "years_above": {"type": "number", "description": "位次在最低位次之上的年份数"},
+                  "years_total": {"type": "number"},
+                  "avg_rank_diff": {"type": "number"}
+                }
+              }
+            }
+          },
+          "six_dimensions": {
+            "type": "object",
+            "required": ["考公考编", "国企央企", "外企", "私企/民企", "个人OPC", "医学/医疗"],
+            "properties": {
+              "考公考编": {"$ref": "#/$defs/dimension"},
+              "国企央企": {"$ref": "#/$defs/dimension"},
+              "外企": {"$ref": "#/$defs/dimension"},
+              "私企/民企": {"$ref": "#/$defs/dimension"},
+              "个人OPC": {"$ref": "#/$defs/dimension"},
+              "医学/医疗": {"$ref": "#/$defs/dimension"}
+            }
+          },
+          "advantages": {"type": "array", "items": {"type": "string"}, "minItems": 3, "maxItems": 5},
+          "risks": {"type": "array", "items": {"type": "string"}, "description": "必须包含：行业周期风险、本科晋升瓶颈（如需硕士）、地域就业限制"},
+          "salary_reference": {
+            "type": "object",
+            "description": "薪资必须分层写，至少两类以上",
+            "properties": {
+              "undergrad_production": {"type": "string"},
+              "undergrad_design": {"type": "string"},
+              "masters_rd": {"type": "string"},
+              "five_year_mid": {"type": "string"}
+            }
+          },
+          "xuefeng_comment": {"type": "string", "description": "一段话张雪峰点评"},
+          "agi_value_positioning": {"type": "string", "description": "该专业在AGI时代的不可替代价值"},
+          "cross_province_analysis": {
+            "type": "object",
+            "description": "跨省推荐必须写（省内推荐的此项可为null）",
+            "properties": {
+              "is_cross_province": {"type": "boolean"},
+              "return_liaoning_disadvantage": {"type": "string", "description": "回辽宁就业的校友和校招资源劣势"},
+              "settle_outside_path": {"type": "string", "description": "定居外省的发展路径"},
+              "return_liaoning_remedy": {"type": "string", "description": "如果四年后决定回辽的补救建议"}
+            }
+          },
+          "local_employment_advantage": {
+            "type": "string",
+            "description": "省内推荐必须写：本地就业的地域红利（如'本地国企校招名额远多于外省同层次院校'）"
+          },
+          "recommendation_index": {"type": "number", "minimum": 1, "maximum": 5, "description": "推荐指数⭐(1-5)"}
+        }
+      }
+    },
+    "ranking_table": {
+      "type": "object",
+      "description": "第六章：志愿填报排序表——遵循1稳→2稳/小冲→3冲→4冲→5本地稳→6保底→7兜底",
+      "required": ["entries", "sorting_rationale"],
+      "properties": {
+        "entries": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "object",
+            "required": ["order", "strategy", "school", "major", "tuition", "rationale"],
+            "properties": {
+              "order": {"type": "number", "minimum": 1, "maximum": 7},
+              "strategy": {"type": "string", "enum": ["稳", "稳/小冲", "冲", "本地稳", "保底", "兜底"]},
+              "school": {"type": "string"},
+              "major": {"type": "string"},
+              "tuition": {"type": "string"},
+              "rationale": {"type": "string", "description": "排序理由，必须引用招生人数数据"}
+            }
+          }
+        },
+        "sorting_rationale": {"type": "string", "description": "整体排序逻辑说明"},
+        "first_is_stable": {"type": "boolean", "description": "质量红线四检查：第一志愿是否为稳校"},
+        "no_tiny_plan_in_top3": {"type": "boolean", "description": "质量红线四检查：前三志愿是否无≤5人极小计划"}
+      }
+    },
+    "risk_assessment": {
+      "type": "object",
+      "properties": {
+        "slippage_risk": {"type": "string"},
+        "biggest_risk_point": {"type": "string"},
+        "backup_plan": {"type": "string"}
+      }
+    },
+    "career_paths": {
+      "type": "array",
+      "description": "第七章：就业路径分析（至少2条）",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "steps": {"type": "array", "items": {"type": "string"}},
+          "pros": {"type": "array", "items": {"type": "string"}},
+          "cons": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "trap_majors": {
+      "type": "object",
+      "description": "第九章：避坑清单",
+      "properties": {
+        "current_traps_top5": {"type": "array", "items": {"$ref": "#/$defs/trap_entry"}},
+        "hot_now_cold_later_top5": {"type": "array", "items": {"$ref": "#/$defs/trap_entry"}},
+        "personalized_traps": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "family_advice": {
+      "type": "object",
+      "description": "第十章：家庭条件四档建议",
+      "properties": {
+        "poor": {"type": "string"},
+        "working_class": {"type": "string"},
+        "middle_class": {"type": "string"},
+        "wealthy": {"type": "string"}
+      }
+    },
+    "quality_self_check": {
+      "type": "object",
+      "description": "advisor在输出前对自身判断的自检（不是quality-auditor的审查，是内部校验）",
+      "properties": {
+        "redline1_neutrality": {"type": "boolean", "description": "无极端结论？省内院校给了完整就业分析？跨省推荐披露了短板？"},
+        "redline2_data_rigor": {"type": "boolean", "description": "专业分优先？学校最低分有警告？极小计划无百分比？推算未做确定性推荐？"},
+        "redline3_employment_realism": {"type": "boolean", "description": "薪资分层？行业风险已写？本科晋升瓶颈已写？"},
+        "redline4_ranking_logic": {"type": "boolean", "description": "第一志愿稳校？极小计划不在前三？排序理由引用了招生人数？"}
+      }
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "required": ["current_2026", "future_2030", "ai_impact"],
+      "properties": {
+        "current_2026": {"type": "string", "description": "当前就业情况（⭐评分+分析）"},
+        "future_2030": {"type": "string", "description": "4年后（2030年）前景"},
+        "ai_impact": {"type": "string", "enum": ["低", "中", "高"], "description": "AI冲击评估"}
+      }
+    },
+    "trap_entry": {
+      "type": "object",
+      "properties": {
+        "rank": {"type": "number"},
+        "major": {"type": "string"},
+        "fatal_data": {"type": "string"},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

@@ -1,0 +1,129 @@
+# 溪溪辽宁省 · 高考志愿推荐引擎 (xixi-liaoning)
+
+> **基于张雪峰认知框架 × 辽宁专属数据 × 六维度拆解 × T1-T4数据分级 × Pipeline多Agent架构**
+
+<p align="center">
+  <strong>不讲情怀，看数据。不追短期热点，看四年后饭碗在哪。</strong>
+</p>
+
+---
+
+## 这是什么
+
+一个专注于**辽宁省**的高考志愿推荐 Claude Code Skill。以张雪峰的认知框架为分析基底，整合辽宁省 64 所本科院校数据库、22 个重点产业集群人才需求、4 年就业前瞻（含 AI 冲击分析），从**考公考编/国企央企/外企/私企/个人OPC/医学医疗**六个维度逐项拆解，生成带配图建议的 11 章完整 Markdown 报告。
+
+## 核心特性
+
+### 🏗️ Pipeline 多Agent 架构
+- **data-fetcher Agent**：WebSearch 实时搜索录取数据 + T1-T4 数据可信度分级 + 双源交叉验证
+- **advisor Agent**：六维度就业分析 + 张雪峰视角 + 质量红线自检 + 志愿排序
+- **report-writer Agent**：11 章固定模板报告生成 + 三档表达（🔴全力/🟡温和/🟢共情）
+- **quality-auditor Agent**：独立审查（8 项一票否决 + 6 项扣分评分）
+
+### 📊 辽宁深度绑定
+- 42 所公办 + 22 所民办本科院校完整数据库
+- 22 个重点产业集群人才需求
+- 大连/沈阳/辽宁其他城市/全国四层优先级推荐
+- 跨省推荐强制披露回辽宁就业短板
+
+### 🧊 小众冷门赛道
+- 七大类 26 条全国小众赛道（认知偏见 = 就业护城河）
+- 七大类 18 条定向委培赛道（入学 = 入编）
+- 辽宁四大定向体系详解（村医 / 公费师范 / 水利 / 农科）
+
+### 🛡️ 质量保障
+- 4 条质量红线 + 8 项一票否决 + 6 项扣分评分
+- 所有录取数据标注 T1-T4 可信度等级
+- 分数线双源交叉验证硬规则
+- 独立质量审计 + 审计报告存档
+
+## 目录结构
+
+```
+xixi-liaoning/
+├── SKILL.md                                    # 主技能文件（942行·含完整工作流）
+├── README.md                                   # 本文件
+├── schemas/
+│   ├── fetched-data.schema.json                # data-fetcher Agent 输出 Schema
+│   └── advice.schema.json                      # advisor Agent 输出 Schema
+└── references/
+    ├── liaoning-universities.md                # 辽宁64所院校库
+    ├── liaoning-industries-employment.md       # 辽宁22产业集群就业数据
+    ├── national-universities.md                # 全国院校数据库
+    ├── national-employment-6dimensions.md      # 全国六维度就业数据
+    ├── data-source-tiers.md                    # T1-T4数据源可信度分级
+    ├── crisis-sop.md                           # 🟢情绪危机五阶段SOP
+    ├── gaokao-modes.md                         # 全国高考模式速查表
+    ├── niche-tracks-national.md                # 全国小众冷门赛道（七大类·26条）
+    ├── targeted-enrollment-national.md         # 全品类定向赛道汇总（七大类·18条）
+    └── liaoning-targeted-enrollment.md         # 辽宁省定向赛道清单（四大体系）
+```
+
+## 安装
+
+### 方式1：通过 npx skills 安装
+
+```bash
+npx skills add <your-github-username>/xixi-liaoning -a claude -g -y
+```
+
+### 方式2：手动安装
+
+```bash
+# 克隆到 Claude Code skills 目录
+git clone https://github.com/<your-github-username>/xixi-liaoning.git ~/.claude/skills/xixi-liaoning
+```
+
+### 前置依赖
+
+- **zhangxuefeng-skill**：xixi-liaoning 在 Step 1.5 调用雪峰 Skill 获取全国就业市场宏观判断
+
+```bash
+npx skills add realshady-art/zhangxuefeng-skill -a claude -g -y
+```
+
+## 触发方式
+
+在 Claude Code 中输入以下任意关键词即可激活：
+
+- 「辽宁高考志愿」
+- 「辽宁省大学推荐」
+- 「辽宁选专业」
+- 「我想在辽宁上学」
+- 「辽宁考生」
+- 「雪峰视角看辽宁」
+- 「辽宁什么专业好」
+
+## 标准输入格式
+
+| 字段 | 必填 | 说明 |
+|------|:---:|------|
+| 学生姓名 | ✅ | — |
+| 性别 | ✅ | 男 / 女 |
+| 户口省份 | ✅ | — |
+| 考试科目 | ✅ | 物理类 / 历史类 |
+| 成绩（分数） | ✅ | 高考总分 |
+| 期望专业 | 选填 | 不限则全专业推荐 |
+| 考虑地点 | 选填 | 默认大连→沈阳→辽宁其他→全国 |
+| 家庭条件 | 选填 | 默认四档分别建议 |
+| 考研打算 | 选填 | 默认两条路径 |
+| 行业偏好 | 选填 | 默认技术型优先 |
+| 关注维度 | 选填 | 默认全部6个维度 |
+
+## 输出
+
+1. **完整 Markdown 报告**（11 章固定模板·含考生定位/雪峰视角/考公排行榜/学校推荐/六维度对比/志愿排序/就业路径/AGI分析/避坑清单/家庭建议/数据来源）
+2. **配图策略文件**（4-6 张·小黑 IP 风格提示词）
+3. **带插图版报告**（用户提供插图后嵌入）
+4. **质量自审报告**（独立存档·8+6 项逐条评分）
+
+## 版本
+
+**v3.1.0** (2026-06-19)
+
+- v3.0.0: Pipeline 多Agent 架构升级 + T1-T4 数据分级 + 三档表达 + 高考模式识别
+- v3.1.0: 新增小众冷门赛道（26条）+ 全国定向汇总（18条）+ 辽宁定向清单（四大体系）
+
+## License
+
+MIT

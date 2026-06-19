@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xixi-liaoning/schemas/fetched-data.schema.json",
+  "title": "Fetched Data — data-fetcher Agent 输出",
+  "description": "data-fetcher Agent 完成所有 WebSearch 和 reference 读取后的结构化数据输出，供 advisor Agent 消费。",
+  "type": "object",
+  "required": ["candidate", "schools", "civil_service_top10", "data_quality_flags"],
+  "properties": {
+    "candidate": {
+      "type": "object",
+      "description": "考生画像（含省情确认结果）",
+      "required": ["name", "gender", "province", "exam_type", "score", "rank"],
+      "properties": {
+        "name": {"type": "string"},
+        "gender": {"type": "string", "enum": ["男", "女"]},
+        "province": {"type": "string"},
+        "exam_type": {"type": "string", "enum": ["物理类", "历史类", "文科", "理科"]},
+        "score": {"type": "number"},
+        "rank": {"type": "number", "description": "省排名"},
+        "gaokao_mode": {"type": "string", "enum": ["新高考3+1+2", "新高考3+3", "旧高考"]},
+        "batch_lines": {
+          "type": "object",
+          "properties": {
+            "特控线": {
+              "type": "object",
+              "properties": {
+                "score": {"type": "number"},
+                "rank": {"type": "number"},
+                "source_url": {"type": "string"}
+              }
+            },
+            "本科线": {
+              "type": "object",
+              "properties": {
+                "score": {"type": "number"},
+                "rank": {"type": "number"},
+                "source_url": {"type": "string"}
+              }
+            }
+          }
+        },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "majors": {"type": "array", "items": {"type": "string"}},
+            "cities": {"type": "array", "items": {"type": "string"}},
+            "family_condition": {"type": "string", "enum": ["富裕", "中产", "工薪", "农村", "未指定"]},
+            "postgrad_plan": {"type": "string", "enum": ["一定要读", "能读就读", "毕业赶紧赚钱", "未指定"]},
+            "industry_preference": {"type": "string", "enum": ["技术型", "坐办公室", "社交型", "吃苦型", "不限", "未指定"]},
+            "focus_dimensions": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["考公考编", "国企央企", "外企", "私企/民企", "个人OPC", "医学/医疗"]}
+            }
+          }
+        }
+      }
+    },
+    "schools": {
+      "type": "array",
+      "description": "候选学校与专业的完整录取数据",
+      "items": {
+        "type": "object",
+        "required": ["name", "tier", "city", "type", "majors"],
+        "properties": {
+          "name": {"type": "string", "description": "学校全称"},
+          "tier": {"type": "string", "enum": ["省内第一层·大连", "省内第二层·沈阳", "省内第三层·其他", "全国第四层"]},
+          "city": {"type": "string"},
+          "type": {"type": "string", "enum": ["公办", "民办"]},
+          "is_985": {"type": "boolean"},
+          "is_211": {"type": "boolean"},
+          "is_double_first_class": {"type": "boolean"},
+          "majors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "scores", "liaoning_quota"],
+              "properties": {
+                "name": {"type": "string", "description": "专业名称"},
+                "scores": {
+                  "type": "array",
+                  "description": "历年录取数据",
+                  "items": {
+                    "type": "object",
+                    "required": ["year", "score", "rank", "source_url", "source_tier"],
+                    "properties": {
+                      "year": {"type": "number"},
+                      "score": {"type": ["number", "null"]},
+                      "rank": {"type": ["number", "null"]},
+                      "source_url": {"type": "string"},
+                      "source_tier": {"type": "string", "enum": ["T1", "T2", "T3", "T4"]},
+                      "is_extrapolated": {"type": "boolean", "default": false},
+                      "extrapolation_note": {"type": "string"},
+                      "is_school_min_score": {"type": "boolean", "default": false, "description": "是否为学校最低投档分而非该专业单独投档分"}
+                    }
+                  }
+                },
+                "liaoning_quota": {
+                  "type": "object",
+                  "required": ["latest_year", "count"],
+                  "properties": {
+                    "latest_year": {"type": "number"},
+                    "count": {"type": ["number", "null"]},
+                    "source_url": {"type": "string"},
+                    "quota_warning": {"type": "string", "enum": ["计划充裕(≥15人)", "中等计划(5-14人)", "极小计划(≤4人)", "暂缺"]}
+                  }
+                },
+                "score_warning": {
+                  "type": "string",
+                  "description": "当使用学校最低分代替专业分时的显式警告"
+                },
+                "professional_score_available": {"type": "boolean"},
+                "discipline_evaluation": {
+                  "type": "object",
+                  "properties": {
+                    "grade": {"type": "string", "enum": ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-"]},
+                    "source": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "civil_service_top10": {
+      "type": "array",
+      "description": "国考专业招录TOP10排行榜",
+      "items": {
+        "type": "object",
+        "required": ["rank", "major_category", "recruitment_count", "percentage"],
+        "properties": {
+          "rank": {"type": "number"},
+          "major_category": {"type": "string"},
+          "recruitment_count": {"type": "number"},
+          "percentage": {"type": "number"},
+          "main_departments": {"type": "array", "items": {"type": "string"}},
+          "source_url": {"type": "string"}
+        }
+      }
+    },
+    "employment_data": {
+      "type": "object",
+      "description": "产业与就业补充数据",
+      "properties": {
+        "liaoning_industries": {"type": "object", "description": "从references读取的辽宁产业集群数据摘要"},
+        "national_trends": {"type": "object", "description": "全国就业趋势关键数据点"},
+        "ai_impact_assessment": {"type": "object"}
+      }
+    },
+    "xuefeng_skill_output": {
+      "type": "object",
+      "description": "Step 1.5调用雪峰Skill的核心输出摘要",
+      "properties": {
+        "core_judgment": {"type": "string"},
+        "recommended_directions": {"type": "array", "items": {"type": "string"}},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "golden_quote": {"type": "string"}
+      }
+    },
+    "data_quality_flags": {
+      "type": "object",
+      "description": "数据质量标记——advisor必须据此调整推荐置信度",
+      "properties": {
+        "school_min_score_used_for": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "使用了学校最低分而非专业分的推荐项名称（格式：学校名-专业名）"
+        },
+        "single_source_only": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "仅单一来源的分数线数据"
+        },
+        "extrapolated": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "使用了2026推算数据项（仅成绩发布前）"
+        },
+        "data_missing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {"type": "string"},
+              "field": {"type": "string"},
+              "search_attempts": {"type": "number"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
