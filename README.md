@@ -1,6 +1,6 @@
 # 溪溪辽宁省 · 高考志愿推荐引擎 (xixi-liaoning)
 
-> **基于张雪峰认知框架 × 辽宁专属数据 × 六维度拆解 × T1-T4数据分级 × Pipeline多Agent架构**
+> **基于张雪峰认知框架 × 核心三步法 × 辽宁专属数据 × 六维度拆解 × 冲稳保量化 × T1-T4数据分级 × Pipeline多Agent架构**
 
 <p align="center">
   <strong>不讲情怀，看数据。不追短期热点，看四年后饭碗在哪。</strong>
@@ -10,15 +10,20 @@
 
 ## 这是什么
 
-一个专注于**辽宁省**的高考志愿推荐 Claude Code Skill。以张雪峰的认知框架为分析基底，整合辽宁省 64 所本科院校数据库、22 个重点产业集群人才需求、4 年就业前瞻（含 AI 冲击分析），从**考公考编/国企央企/外企/私企/个人OPC/医学医疗**六个维度逐项拆解，生成带配图建议的 11 章完整 Markdown 报告。
+一个专注于**辽宁省**的高考志愿推荐 Claude Code Skill。以张雪峰的认知框架为分析基底，采用**核心三步法**（①等效同位分换算 → ②±20分院校海选 → ③冲稳保志愿排序），整合辽宁省 64 所本科院校数据库、22 个重点产业集群人才需求、4 年就业前瞻（含 AI 冲击分析），从**考公考编/国企央企/外企/私企/个人OPC/医学医疗**六个维度逐项拆解，生成带配图建议的 11 章完整 Markdown 报告。
 
 ## 核心特性
 
+### 📋 核心三步法
+1. **等效同位分换算**：一分一段表 → 分数转位次 → 往年等效分反推
+2. **±20分院校海选**：同位分±20分范围内，搜索3年有录取记录的所有本科院校
+3. **冲稳保志愿排序**：四档分差（冲+5~+20/稳±5/保-5~-30/兜底-30↓）+ 录取概率标注
+
 ### 🏗️ Pipeline 多Agent 架构
-- **data-fetcher Agent**：WebSearch 实时搜索录取数据 + T1-T4 数据可信度分级 + 双源交叉验证
-- **advisor Agent**：六维度就业分析 + 张雪峰视角 + 质量红线自检 + 志愿排序
-- **report-writer Agent**：11 章固定模板报告生成 + 三档表达（🔴全力/🟡温和/🟢共情）
-- **quality-auditor Agent**：独立审查（8 项一票否决 + 6 项扣分评分）
+- **data-fetcher Agent**：等效分换算 + ±20分海选 + 考公排行榜 + T1-T4数据分级 + 双源交叉验证
+- **advisor Agent**：六维度就业分析 + 冲稳保四档分类 + 张雪峰视角 + 质量红线自检
+- **report-writer Agent**：三步法速览卡片 + 11章固定模板 + 三档表达（🔴全力/🟡温和/🟢共情）+ 最后提醒强制声明
+- **quality-auditor Agent**：独立审查（8项一票否决 + 6项扣分 + 6项v3.2新增检查）
 
 ### 📊 辽宁深度绑定
 - 42 所公办 + 22 所民办本科院校完整数据库
@@ -41,12 +46,14 @@
 
 ```
 xixi-liaoning/
-├── SKILL.md                                    # 主技能文件（942行·含完整工作流）
+├── SKILL.md                                    # 主技能文件（~430行·三步法+11章+冲稳保量化）
 ├── README.md                                   # 本文件
 ├── schemas/
 │   ├── fetched-data.schema.json                # data-fetcher Agent 输出 Schema
 │   └── advice.schema.json                      # advisor Agent 输出 Schema
 └── references/
+    ├── scoring-rules.md                        # 🆕 冲稳保分差规则+录取概率对照+同位分换算
+    ├── agent-prompts.md                        # 🆕 四个Agent完整prompt模板
     ├── liaoning-universities.md                # 辽宁64所院校库
     ├── liaoning-industries-employment.md       # 辽宁22产业集群就业数据
     ├── national-universities.md                # 全国院校数据库
@@ -143,6 +150,13 @@ npx skills add realshady-art/zhangxuefeng-skill -a claude -g -y
 **质量审计**：8 项一票否决全部通过 · 扣分项 9.5/10 · 独立审计报告存档。
 
 ## 版本
+
+**v3.2.0** (2026-06-22)
+
+- 📋 核心三步法前置：等效同位分换算 → ±20分院校海选 → 冲稳保志愿排序
+- 📊 冲稳保量化：四档分差区间 + 录取概率对照表（`references/scoring-rules.md`）
+- 🎯 报告增强：三步法速览卡片 + 录取概率列 + 同位分差列 + 最后提醒强制声明
+- 🗜️ SKILL.md 从 950 行精简至 ~430 行，Agent prompt 模板独立（`references/agent-prompts.md`）
 
 **v3.1.0** (2026-06-19)
 
